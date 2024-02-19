@@ -130,3 +130,6 @@ dmypy.json
 
 #virtualenv
 venv/
+
+
+lat_lon_*
