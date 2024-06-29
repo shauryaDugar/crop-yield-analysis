@@ -17,14 +17,20 @@ INDIAN_STATE_LIST = ['Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal
 # Generates a csv file containing the district name, latitude and longitude for a given state. 
 # Districts in the crop_production.csv are used only
 def generate_lat_lon_csv(state):
+    # check if the input state to this method is valid
     assert state in INDIAN_STATE_LIST, f"'{state}' is not a valid state."
+    # determine the file path to store the csv file for latitute and longitude
     lat_lon_file = os.path.join(os.getcwd(), f"State Files/lat_lon_{'_'.join(word for word in state.split())}.csv")
+    # if the lat lon file already exists we can directly exit the function else continue to generate it
     if os.path.isfile(lat_lon_file):
         return
+    # load the environment variable from the .env file. Remember api_keys are like passwords that's why 
+    # we store them as environment variables.
     load_dotenv()
     api_key = os.environ.get("GEO_API_KEY")
     df = pd.read_csv("crop_production.csv")
     df = df[df["State_Name"]==state]
+    # find out names of all unique districts from the dataframe for that state
     print(df["District_Name"].unique())
     lat_lon_df = pd.DataFrame(columns=["District_Name", "lat", "lon"])
 
@@ -32,6 +38,7 @@ def generate_lat_lon_csv(state):
     for district in df["District_Name"].unique():
         url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={district} {state}&aqi=no"
         response = json.loads(requests.get(url).content)
+
         if 'error' in response or 'location' not in response :
             print(f"\nCoordinates for {district} could not be found! Enter coordinates manually.")
             lat_lon_df.loc[len(lat_lon_df)] = [district, np.nan, np.nan]
@@ -40,6 +47,7 @@ def generate_lat_lon_csv(state):
             print(f"\nCoordinates for {district} were not found in the region you were looking for! Enter coordinates manually.")
             lat_lon_df.loc[len(lat_lon_df)] = [district, np.nan, np.nan]
             continue
+        
         lat_lon_df.loc[len(lat_lon_df)] = [district, response["location"]["lat"], response["location"]["lon"]]
 
     lat_lon_df.to_csv(lat_lon_file, index=False)
