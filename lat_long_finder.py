@@ -14,6 +14,17 @@ INDIAN_STATE_LIST = ['Andaman and Nicobar Islands', 'Andhra Pradesh', 'Arunachal
  'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana ', 'Tripura', 'Uttar Pradesh',
  'Uttarakhand', 'West Bengal']
 
+# Define the folder name
+folder_name = "State Files"
+
+# Check if the folder exists
+if not os.path.exists(folder_name):
+    # Create the folder
+    os.makedirs(folder_name)
+    print(f"Folder '{folder_name}' created.")
+else:
+    print(f"Folder '{folder_name}' already exists.")
+
 # Generates a csv file containing the district name, latitude and longitude for a given state. 
 # Districts in the crop_production.csv are used only
 def generate_lat_lon_csv(state):
