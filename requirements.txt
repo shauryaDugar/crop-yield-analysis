@@ -103,3 +103,4 @@ urllib3==2.2.0
 validators==0.22.0
 yarl==1.9.4
 zipp==3.17.0
+streamlit-audiorec==0.1.3
