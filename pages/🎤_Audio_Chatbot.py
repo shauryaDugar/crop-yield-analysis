@@ -12,19 +12,28 @@ from io import BytesIO
 import re
 import os
 from dotenv import load_dotenv
+from st_audiorec import st_audiorec
 
 load_dotenv()
 
 st.set_page_config("Audio Chatbot", page_icon=":microphone:")
 
 # Function number 1
-def transcribe_audio(audio):
+def transcribe_audio(audio_data):
     recognizer = sr.Recognizer()
+    # Convert audio bytes to AudioFile object
+
+    # Convert audio bytes to a file-like object
+    audio_file = BytesIO(audio_data)
+
+    with sr.AudioFile(audio_file) as source:
+        audio = recognizer.record(source)  # Read the entire audio file
+
     try:
         # this uses the google speech API for different languages. Generally not used in production,
         # but it will do for our purpose as it eliminates the need for Google Cloud Authentication which
         # is quite troublesome
-        text = recognizer.recognize_google(audio, language="mr-IN")
+        text = recognizer.recognize_google(audio, language="hi-IN")
         return text
     except sr.UnknownValueError:
         return "Google Speech Recognition could not understand the audio"
@@ -140,20 +149,13 @@ def main():
 
     st.write("Speak in Marathi and the chatbot will transcribe your speech. It will also display search results based on your speech along with summaries of each link.")
 
-    # button for audio instructions
-    if st.button("Start Recording"):
-        st.info("Listening...")
-        recognizer = sr.Recognizer()
-        # use the microphone
-        with sr.Microphone() as source:
-            # adjust for better input quality
-            recognizer.adjust_for_ambient_noise(source)
 
-            # get the audio input
-            audio = recognizer.listen(source)
+    wav_audio_data = st_audiorec()
 
-        # transcribe audio using fn1
-        text = transcribe_audio(audio)
+    if wav_audio_data is not None:
+
+        # Transcribe speech to text
+        text = transcribe_audio(wav_audio_data)
 
         # display transcribed text
         if text:
